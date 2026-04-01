@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心 - Android Intent跳转助手</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #fff;
+            --bg2: #f8f9fa;
+            --text: #333;
+            --text2: #666;
+            --primary: #2196f3;
+            --primary-light: #42a5f5;
+            --primary-dark: #1976d2;
+            --border: #dee2e6;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --bg2: #2a2a2a;
+            --text: #fff;
+            --text2: #ccc;
+            --primary: #64b5f6;
+            --primary-light: #90caf9;
+            --primary-dark: #42a5f5;
+            --border: #444;
+            --shadow: 0 2px 8px rgba(0,0,0,0.2);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        html, body {
+            transition: var(--transition);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+            padding: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-top: 8px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text2);
+            margin: 0 auto 16px;
+            padding: 12px 16px;
+            background: var(--bg2);
+            border-radius: var(--radius);
+            max-width: 800px;
+            border-left: 4px solid var(--primary);
+            word-break: break-word;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .faq-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .accordion-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .accordion-item:hover {
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-light);
+        }
+
+        .accordion-header {
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .accordion-header:hover {
+            color: var(--primary);
+        }
+
+        .accordion-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            padding: 0 16px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+            color: var(--text2);
+            border-top: 1px solid var(--border);
+        }
+
+        .accordion-content.show {
+            padding: 0 16px 16px;
+            max-height: 500px;
+        }
+
+        .accordion-body {
+            line-height: 1.6;
+            padding-top: 12px;
+        }
+
+        .feedback-section {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .feedback-section:hover {
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-light);
+        }
+
+        .feedback-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+        }
+
+        .feedback-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .feedback-note {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg2);
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            color: var(--text2);
+            border-left: 3px solid var(--primary);
+        }
+
+        .theme-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 100;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-btn:hover {
+            transform: rotate(15deg) scale(1.05);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 450px;
+            width: 90%;
+            padding: 24px;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .modal-overlay.show .modal-container {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text2);
+        }
+
+        .modal-close:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .modal-body {
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-body strong {
+            color: var(--primary-dark);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .modal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .modal-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--text);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            z-index: 100;
+            opacity: 0;
+            transition: var(--transition);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            word-break: break-word;
+            box-shadow: var(--shadow);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text2);
+            font-size: 0.85rem;
+            margin-top: 24px;
+            padding: 16px 0;
+            border-top: 1px solid var(--border);
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .feedback-link {
+                display: block;
+                text-align: center;
+                width: 100%;
+            }
+            .modal-container {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>帮助中心<br>开发：Bilibili@Fusion_ex，lxcpass，yyb<br>其他昵称B站账号（王嘉宁等）均为盗取</h1>
+            <p class="subtitle">使用过程中遇到的问题，可参考以下说明或反馈给我们</p>
+        </header>
+
+        <div class="faq-section">
+            <div class="section-title">常见问题</div>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>为什么点击"尝试跳转"没有反应？</span>
+                        <span class="accordion-icon">➕</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            1. 部分浏览器限制了Intent协议的跳转。<br>
+                            2. 安卓系统版本或厂商定制系统可能限制了某些设置页面的直接跳转；<br>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>自定义添加的Intent可以永久保存吗？</span>
+                        <span class="accordion-icon">➕</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            1. 自定义添加的Intent会保存在浏览器cookie中，清除浏览器缓存和cookie会导致数据丢失；<br>
+                            2. 不同浏览器/设备之间的自定义Intent数据不互通；<br>
+                            3. 建议重要的自定义Intent路径手动复制保存到本地。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>为什么显示可跳转的方法还是不能跳转？</span>
+                        <span class="accordion-icon">➕</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            该标签由Ai判断，不一定准确，请以实际情况为准。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>还有解决不了的问题怎么办</span>
+                        <span class="accordion-icon">➕</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            下方有反馈入口，仅限于链接为imex{$rthSuffix}的用户反馈，其他链接来源的请找对应作者，【复用本站源代码请修改邮箱！！！！】
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-section">
+            <div class="section-title">未知问题反馈</div>
+            <p>如果遇到上述未覆盖的问题，请通过邮箱反馈给我们：</p>
+            
+            <a href="mailto:floruit@xai.edu.kg?subject=【错误：AndroidIntent跳转助手】&body=我在点击方法iD【 】时出现【 】问题，我使用【 】品牌的【 】型号【 (学习机/手机/平板)】，，，，， ，浏览器是【 】浏览器版本是【 】"
+               class="feedback-link" 
+               onclick="showFeedbackModal(event)">
+                📧 快捷发送反馈邮件
+            </a>
+            
+            <div class="feedback-note">
+                <strong>注意：</strong><br>
+                1. 【快捷发送】需要您的设备已安装邮箱客户端（如Outlook、QQ邮箱、网易邮等）；<br>
+                2. 若没有邮箱客户端，可手动发送邮件：<br>
+                - 收件地址：floruit@xai.edu.kg<br>
+                - 主题：【错误：AndroidIntent跳转助手】<br>
+                - 正文示例：<br>
+                问题描述：点击开发者选项（附上选项id，如id：4）跳转时无反应<br>
+                设备信息：学习机厂商+型号+系统版本<br>
+                使用的浏览器：夸克（附上版本号，如11.9.9）<br>
+                其他补充：......
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Android Intent 跳转助手</p>
+        </div>
+    </div>
+
+    <button class="theme-btn" id="theme-btn">🌙</button>
+    <div class="toast" id="toast"></div>
+    
+    <div class="modal-overlay" id="feedback-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">📧 反馈邮件提示</div>
+                <div class="modal-close" onclick="closeModal()">×</div>
+            </div>
+            <div class="modal-body">
+                <p>点击反馈链接需要您的设备已安装邮箱客户端（如Outlook、QQ邮箱、网易邮箱等）！</p>
+                <p style="margin-top: 12px;">若无邮箱客户端，请<strong>手动发送邮件</strong>：</p>
+                <ul style="margin-top: 8px; padding-left: 20px; color: var(--text2);">
+                    <li>收件人：floruit@xai.edu.kg</li>
+                    <li>主题：【错误：Android跳转助手】</li>
+                    <li>正文建议包含：问题描述（附ID）、学习机/设备信息、浏览器版本</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="confirm-btn" onclick="closeModal()" disabled>我知道了（10秒后可点击）</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('theme-btn');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        const modal = document.getElementById('feedback-modal');
+        let mailtoLink = '';
+        let toastTimer = null;
+        
+        function initTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark' || (!saved && prefersDark.matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️';
+            }
+            
+            themeBtn.onclick = () => {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeBtn.textContent = '🌙';
+                    localStorage.setItem('theme', 'light');
+                    showToast('已切换到浅色主题', 'info');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeBtn.textContent = '☀️';
+                    localStorage.setItem('theme', 'dark');
+                    showToast('已切换到深色主题', 'info');
+                }
+            };
+        }
+
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.accordion-icon');
+            
+            document.querySelectorAll('.accordion-content').forEach(item => {
+                if (item !== content) {
+                    item.classList.remove('show');
+                    item.previousElementSibling.querySelector('.accordion-icon').textContent = '➕';
+                }
+            });
+            
+            content.classList.toggle('show');
+            icon.textContent = content.classList.contains('show') ? '➖' : '➕';
+        }
+
+        function showFeedbackModal(e) {
+            e.preventDefault();
+            mailtoLink = e.target.href;
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            const confirmBtn = document.getElementById('confirm-btn');
+            let countdown = 10;
+            const timer = setInterval(() => {
+                countdown--;
+                confirmBtn.textContent = `我知道了（${countdown}秒后可点击）`;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = '我知道了';
+                }
+            }, 1000);
+        }
+
+        function closeModal() {
+            const confirmBtn = document.getElementById('confirm-btn');
+            if (!confirmBtn.disabled) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                
+                if (mailtoLink) {
+                    window.location.href = mailtoLink;
+                    mailtoLink = '';
+                }
+                
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '我知道了（10秒后可点击）';
+            }
+        }
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast';
+            
+            if (type === 'success') toast.style.background = '#4CAF50';
+            else if (type === 'error') toast.style.background = '#F44336';
+            else if (type === 'warning') toast.style.background = '#FF9800';
+            else toast.style.background = '#333';
+            
+            toast.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function init() {
+            initTheme();
+            setTimeout(() => showToast('帮助中心已加载完成', 'info'), 500);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

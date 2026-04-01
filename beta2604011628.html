@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Android Intent Tool · 2026愚人节 | sym & yyb & Floruit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --space-0: 0px;
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 36px;
+            --radius-full: 999px;
+            --font-xs: 0.75rem;
+            --font-sm: 0.875rem;
+            --font-base: 1rem;
+            --font-lg: 1.125rem;
+            --font-xl: 1.25rem;
+            --font-2xl: 1.5rem;
+            --font-3xl: 1.875rem;
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --user-accent-h: 225;
+            --user-accent-s: 100%;
+            --user-accent-l: 60%;
+            --user-blur: 20px;
+            --user-card-scale: 1;
+            --user-spacing: 1;
+            --accent-hsl: hsl(var(--user-accent-h), var(--user-accent-s), var(--user-accent-l));
+            --accent-deep-hsl: hsl(var(--user-accent-h), var(--user-accent-s), calc(var(--user-accent-l) - 12%));
+            --accent-soft-hsl: hsl(var(--user-accent-h), calc(var(--user-accent-s) - 20%), calc(var(--user-accent-l) + 22%));
+            --accent-glow-hsl: hsla(var(--user-accent-h), var(--user-accent-s), var(--user-accent-l), 0.25);
+            --bg-base: #f4f7fc;
+            --bg-surface: rgba(255, 255, 255, 0.72);
+            --bg-surface-solid: #ffffff;
+            --bg-elevated: rgba(255, 255, 255, 0.9);
+            --border-light: rgba(0, 0, 0, 0.06);
+            --border-medium: rgba(0, 0, 0, 0.1);
+            --text-primary: #1c1e2b;
+            --text-secondary: #5b5f70;
+            --text-tertiary: #8e93a6;
+            --accent: var(--accent-hsl);
+            --accent-deep: var(--accent-deep-hsl);
+            --accent-glow: var(--accent-glow-hsl);
+            --green: #10b981;
+            --green-dark: #059669;
+            --orange: #f59e0b;
+            --gray: #94a3b8;
+            --shadow-color: rgba(0, 0, 0, 0.04);
+            --backdrop-blur: var(--user-blur);
+            --card-padding: calc(var(--space-5) * var(--user-spacing));
+            --grid-gap: calc(var(--space-5) * var(--user-spacing));
+        }
+
+        [data-theme="dark"] {
+            --bg-base: #0b0f17;
+            --bg-surface: rgba(18, 25, 40, 0.7);
+            --bg-surface-solid: #111a28;
+            --bg-elevated: rgba(25, 35, 55, 0.85);
+            --border-light: rgba(255, 255, 255, 0.04);
+            --border-medium: rgba(255, 255, 255, 0.08);
+            --text-primary: #edf2f9;
+            --text-secondary: #a6b3cf;
+            --text-tertiary: #6f7c9a;
+            --accent: hsl(var(--user-accent-h), 80%, 65%);
+            --accent-deep: hsl(var(--user-accent-h), 75%, 52%);
+            --accent-glow: hsla(var(--user-accent-h), 80%, 65%, 0.3);
+            --green: #34d399;
+            --green-dark: #10b981;
+            --orange: #fbbf24;
+            --gray: #6b7b95;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: var(--space-5);
+            transition: background-color 0.3s ease, color 0.2s ease;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(24, 144, 255, 0.08), transparent 70%);
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        .glass-panel {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            backdrop-filter: blur(var(--backdrop-blur));
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8) var(--space-6);
+            box-shadow: 0 40px 80px -20px var(--shadow-color);
+        }
+
+        .aura-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .logo-badge h1 {
+            font-size: var(--font-4xl);
+            font-weight: 700;
+            background: linear-gradient(140deg, var(--green), var(--green-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .beta-tag {
+            background: var(--accent-soft-hsl);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .stats-minimal {
+            display: flex;
+            gap: var(--space-6);
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: var(--space-4) 0;
+        }
+
+        .stat-block {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-block .number {
+            font-size: var(--font-3xl);
+            font-weight: 650;
+            color: var(--green);
+        }
+
+        .search-bar {
+            margin: var(--space-4) 0 var(--space-6);
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-input-wrapper {
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-4);
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: var(--space-3) 0;
+            font-size: var(--font-sm);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-tertiary);
+        }
+
+        .filter-cortex {
+            margin: var(--space-2) 0 var(--space-8);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            background: var(--bg-elevated);
+            border-radius: var(--radius-full);
+        }
+
+        .filter-tag {
+            padding: var(--space-2) var(--space-5);
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tag.active {
+            background: var(--green);
+            color: white;
+            box-shadow: 0 8px 18px -6px rgba(16, 185, 129, 0.4);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: var(--grid-gap);
+            margin: var(--space-8) 0;
+        }
+
+        .neo-card {
+            background: var(--bg-elevated);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--card-padding);
+            transition: transform 0.25s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .neo-card:hover {
+            transform: translateY(-4px) scale(var(--user-card-scale));
+            border-color: var(--green);
+            box-shadow: 0 25px 35px -16px rgba(16, 185, 129, 0.3);
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-3);
+        }
+
+        .card-cat {
+            background: rgba(16, 185, 129, 0.2);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: var(--font-xs);
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .card-status {
+            font-size: var(--font-xs);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+        }
+
+        .card-status.available {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--green);
+        }
+
+        .card-status.partial {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--orange);
+        }
+
+        .card-status.unavailable {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--gray);
+        }
+
+        .card-title {
+            font-weight: 650;
+            font-size: var(--font-lg);
+            margin: var(--space-2) 0;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+        }
+
+        .intent-block {
+            background: var(--bg-surface-solid);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            font-family: monospace;
+            font-size: var(--font-xs);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+            margin: var(--space-3) 0;
+            word-break: break-all;
+        }
+
+        .action-group {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: auto;
+        }
+
+        .btn-minimal {
+            flex: 1;
+            padding: var(--space-3);
+            border-radius: var(--radius-full);
+            border: none;
+            font-weight: 550;
+            font-size: var(--font-sm);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-minimal.primary {
+            background: var(--green);
+            color: white;
+            border: none;
+        }
+
+        .btn-minimal.primary:hover {
+            background: var(--green-dark);
+        }
+
+        .btn-minimal.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .custom-maker-card {
+            background: var(--bg-elevated);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--card-padding);
+            margin: var(--space-6) 0;
+        }
+
+        .custom-maker-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 2 1 260px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: var(--font-xs);
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            background: var(--bg-surface-solid);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            font-size: var(--font-sm);
+            color: var(--text-primary);
+        }
+
+        .btn-maker {
+            background: var(--green);
+            border: none;
+            border-radius: var(--radius-full);
+            padding: var(--space-3) var(--space-6);
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-maker:hover {
+            background: var(--green-dark);
+        }
+
+        .meta-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-8);
+            padding-top: var(--space-5);
+            border-top: 1px solid var(--border-light);
+            color: var(--text-tertiary);
+            font-size: var(--font-sm);
+        }
+
+        .theme-orbit {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 99;
+        }
+
+        .toast-vapor {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-elevated);
+            backdrop-filter: blur(30px);
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-full);
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast-vapor.show {
+            opacity: 1;
+        }
+
+        .watermark-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .watermark-item {
+            position: absolute;
+            white-space: nowrap;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            color: #8a8a8a;
+            opacity: 0.4;
+            transform: rotate(-28deg);
+            text-align: center;
+            width: 300px;
+            pointer-events: none;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+            line-height: 1.6;
+        }
+
+        [data-theme="dark"] .watermark-item {
+            color: #b0b0b0;
+            opacity: 0.45;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* 愚人节模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: var(--bg-elevated);
+            border: 2px solid var(--green);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8) var(--space-6);
+            max-width: 380px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: var(--space-4);
+            color: var(--green);
+        }
+
+        .modal-card p {
+            margin: var(--space-3) 0;
+            font-size: 1.2rem;
+        }
+
+        .modal-card .price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: var(--space-2);
+            border-radius: var(--radius-md);
+            margin: var(--space-4) 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-6);
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: var(--space-3);
+            border-radius: var(--radius-full);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal-btn.pay {
+            background: var(--green);
+            color: white;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-surface-solid);
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 700px) {
+            .glass-panel {
+                padding: var(--space-5) var(--space-4);
+            }
+
+            .filter-tag {
+                padding: var(--space-1) var(--space-3);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-panel">
+        <div class="aura-header">
+            <div class="logo-badge">
+                <h1>Android Intent Tool</h1>
+                <span class="beta-tag">2026愚人节特别版</span>
+            </div>
+            <div class="stats-minimal">
+                <div class="stat-block">
+                    <div class="number" id="total-count">0</div>
+                    <div class="label">总方法</div>
+                </div>
+                <div class="stat-block">
+                    <div class="number" id="custom-count">0</div>
+                    <div class="label">自定义</div>
+                </div>
+                <div class="stat-block">
+                    <div class="number" id="attempt-count">0</div>
+                    <div class="label">尝试</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索卡片...">
+                <button class="search-clear" id="clearSearchBtn" style="display: none;">✖</button>
+            </div>
+        </div>
+
+        <div class="filter-cortex" id="filterContainer"></div>
+        <div id="cards-container" class="card-grid"></div>
+
+        <div class="custom-maker-card">
+            <div style="margin-bottom: var(--space-4);">
+                <span style="background: var(--green); padding: 4px 16px; border-radius: var(--radius-full); color:white;">➕ 自定义Intent</span>
+            </div>
+            <div class="custom-maker-row">
+                <div class="input-group"><label>📦 包名</label><input type="text" id="customPkg" value="com.android.settings">
+                </div>
+                <div class="input-group"><label>🧩 类名</label><input type="text" id="customCls" placeholder=".Settings$DevelopmentSettingsActivity">
+                </div>
+                <div class="input-group">
+                    <label>📝 标题</label><textarea id="customDesc" rows="1" placeholder="自定义名称"></textarea>
+                </div>
+                <button class="btn-maker" id="addCustomBtn">✨ 生成并保存</button>
+            </div>
+            <div style="font-size: var(--font-xs); margin-top: var(--space-3);">⚡
+                intent:#Intent;component=<span id="previewIntent">com.android.settings/</span>;end</div>
+        </div>
+
+        <div class="meta-footer">
+            <div><span id="success-count">0</span> 成功 · <span id="total-attempts">0</span> 尝试</div>
+            <div>sym & yyb & Floruit</div>
+            <div>🎭 2026愚人节</div>
+        </div>
+    </div>
+
+    <div class="theme-orbit" id="theme-btn">🌙</div>
+    <div class="toast-vapor" id="toast"></div>
+    <div class="watermark-layer" id="watermarkLayer"></div>
+
+    <!-- 愚人节付费骗局模态框 -->
+    <div class="modal-overlay" id="foolModal">
+        <div class="modal-card">
+            <h3>💰 需要付费解锁<br>【愚人节特别版】</h3>
+            <p>该操作需要付费…吗</p>
+            <div class="price">¥114514</div>
+            <p>立即支付即可继续使用</p>
+            <div class="modal-actions">
+                <button class="modal-btn pay" id="payBtn">💳 确认支付</button>
+                <button class="modal-btn cancel" id="cancelBtn">❌ 我是小学生我没钱</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            const intentsRaw = [
+                {id:1, title:"开发者选项 (Settings$DevelopmentSettingsActivity)", desc:"直接调用开发者选项Activity", path:"intent:#Intent;component=com.android.settings/.Settings$DevelopmentSettingsActivity;end", cat:"developer"},
+                {id:2, title:"开发者选项 (Settings$DevelopmentSettingsDashboardActivity)", desc:"新版开发者选项Dashboard", path:"intent:#Intent;component=com.android.settings/.Settings$DevelopmentSettingsDashboardActivity;end", cat:"developer"},
+                {id:3, title:"开发者选项 (DevelopmentSettings)", desc:"旧版开发者设置", path:"intent:#Intent;component=com.android.settings/.DevelopmentSettings;end", cat:"developer"},
+                {id:4, title:"开发者选项 (系统标准动作)", desc:"使用APPLICATION_DEVELOPMENT_SETTINGS动作", path:"intent:#Intent;action=android.settings.APPLICATION_DEVELOPMENT_SETTINGS;end", cat:"developer"},
+                {id:5, title:"开发者选项 (加载设置片段)", desc:"在SubSettings中加载DevelopmentSettingsDashboardFragment", path:"intent:#Intent;component=com.android.settings/.SubSettings;S.%3Asettings%3Ashow_fragment=com.android.settings.development.DevelopmentSettingsDashboardFragment;end", cat:"developer"},
+                {id:6, title:"开发者选项 (Activity+Fragment)", desc:"通过SettingsActivity加载开发者选项Fragment", path:"intent:#Intent;action=android.intent.action.MAIN;launchFlags=0x10810000;component=com.android.settings/.SettingsActivity;S.%3Asettings%3Ashow_fragment=com.android.settings.development.DevelopmentSettingsDashboardFragment;end", cat:"developer"},
+                {id:7, title:"关于设备 (DeviceInfoSettingsActivity)", desc:"设备信息设置", path:"intent:#Intent;component=com.android.settings/.Settings$DeviceInfoSettingsActivity;end", cat:"about"},
+                {id:8, title:"关于设备 (MyDeviceInfoActivity)", desc:"我的设备信息", path:"intent:#Intent;component=com.android.settings/.Settings$MyDeviceInfoActivity;end", cat:"about"},
+                {id:9, title:"无障碍设置 (AccessibilitySettingsActivity)", desc:"无障碍设置页面", path:"intent:#Intent;component=com.android.settings/.Settings$AccessibilitySettingsActivity;end", cat:"accessibility"},
+                {id:10, title:"安全设置 (SecurityDashboardActivity)", desc:"安全设置Dashboard", path:"intent:#Intent;component=com.android.settings/.Settings$SecurityDashboardActivity;end", cat:"security"},
+                {id:11, title:"VPN设置 (VpnSettingsActivity)", desc:"VPN设置页面", path:"intent:#Intent;component=com.android.settings/.Settings$VpnSettingsActivity;end", cat:"vpn"},
+                {id:12, title:"APN设置 (ApnSettingsActivity)", desc:"APN设置页面", path:"intent:#Intent;component=com.android.settings/.Settings$ApnSettingsActivity;end", cat:"apn"},
+                {id:13, title:"受信任凭据 (TrustedCredentialsSettingsActivity)", desc:"证书管理", path:"intent:#Intent;component=com.android.settings/.Settings$TrustedCredentialsSettingsActivity;end", cat:"security"},
+                {id:14, title:"设置搜索栏 (SearchActivity)", desc:"Android设置智能搜索", path:"intent:#Intent;component=com.android.settings.intelligence/com.android.settings.intelligence.search.SearchActivity;end", cat:"search"},
+                {id:15, title:"设备管理 (DeviceAdminSettingsActivity)", desc:"设备管理员设置", path:"intent:#Intent;component=com.android.settings/.Settings$DeviceAdminSettingsActivity;end", cat:"security"},
+                {id:16, title:"设备管理 (DeviceAdminSettings)", desc:"设备管理员设置类", path:"intent:#Intent;component=com.android.settings/.DeviceAdminSettings;end", cat:"security"},
+                {id:17, title:"设备管理 (DeviceAdminAdd)", desc:"设备管理员添加页面", path:"intent:#Intent;component=com.android.settings/.applications.specialaccess.deviceadmin.DeviceAdminAdd;end", cat:"security"},
+                {id:18, title:"设备管理 (EnterprisePrivacySettingsActivity)", desc:"企业隐私设置", path:"intent:#Intent;component=com.android.settings/.Settings$EnterprisePrivacySettingsActivity;end", cat:"security"},
+                {id:19, title:"系统设置 (SystemDashboardActivity)", desc:"系统设置Dashboard", path:"intent:#Intent;component=com.android.settings/.Settings$SystemDashboardActivity;end", cat:"system"},
+                {id:20, title:"设置建议 (SearchActivity)", desc:"设置建议页面", path:"intent:#Intent;component=com.android.settings.intelligence/com.android.settings.intelligence.search.SearchActivity;end", cat:"search"},
+                {id:21, title:"原生设置界面 (SettingsHomepageActivity)", desc:"Android设置主页", path:"intent:#Intent;component=com.android.settings/.homepage.SettingsHomepageActivity;end", cat:"system"},
+                {id:22, title:"蓝牙设置 (BluetoothSettingsActivity)", desc:"蓝牙设置主页面", path:"intent:#Intent;component=com.android.settings/.Settings$BluetoothSettingsActivity;end", cat:"bluetooth"},
+                {id:23, title:"蓝牙设置 (系统标准动作)", desc:"使用BLUETOOTH_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.BLUETOOTH_SETTINGS;end", cat:"bluetooth"},
+                {id:24, title:"WiFi设置 (WifiSettingsActivity)", desc:"WiFi设置主页面", path:"intent:#Intent;component=com.android.settings/.Settings$WifiSettingsActivity;end", cat:"wifi"},
+                {id:25, title:"WiFi设置 (系统标准动作)", desc:"使用WIFI_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.WIFI_SETTINGS;end", cat:"wifi"},
+                {id:26, title:"WiFi详情 (WifiInfoActivity)", desc:"当前连接WiFi详情", path:"intent:#Intent;component=com.android.settings/.wifi.WifiInfoActivity;end", cat:"wifi"},
+                {id:27, title:"电池设置 (BatterySaverSettingsActivity)", desc:"省电模式设置", path:"intent:#Intent;component=com.android.settings/.Settings$BatterySaverSettingsActivity;end", cat:"battery"},
+                {id:28, title:"电池设置 (BatterySettingsActivity)", desc:"电池使用情况统计", path:"intent:#Intent;component=com.android.settings/.Settings$BatterySettingsActivity;end", cat:"battery"},
+                {id:29, title:"电池设置 (系统标准动作)", desc:"使用BATTERY_SAVER_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.BATTERY_SAVER_SETTINGS;end", cat:"battery"},
+                {id:30, title:"应用管理 (ManageApplicationsActivity)", desc:"所有应用管理页面", path:"intent:#Intent;component=com.android.settings/.Settings$ManageApplicationsActivity;end", cat:"app"},
+                {id:31, title:"应用信息 (AppInfoSettings)", desc:"指定应用信息页面（需传包名参数）", path:"intent:#Intent;component=com.android.settings/.applications.appinfo.AppInfoSettings;end", cat:"app"},
+                {id:32, title:"应用权限 (ApplicationPermissionsActivity)", desc:"应用权限管理", path:"intent:#Intent;component=com.android.settings/.Settings$ApplicationPermissionsActivity;end", cat:"app"},
+                {id:33, title:"显示设置 (DisplaySettingsActivity)", desc:"显示设置主页面", path:"intent:#Intent;component=com.android.settings/.Settings$DisplaySettingsActivity;end", cat:"display"},
+                {id:34, title:"字体设置 (FontSettingsActivity)", desc:"系统字体大小/样式设置", path:"intent:#Intent;component=com.android.settings/.Settings$FontSettingsActivity;end", cat:"display"},
+                {id:35, title:"亮度设置 (BrightnessSettings)", desc:"屏幕亮度调节", path:"intent:#Intent;component=com.android.settings/.display.BrightnessSettings;end", cat:"display"},
+                {id:36, title:"声音设置 (SoundSettingsActivity)", desc:"声音设置主页面", path:"intent:#Intent;component=com.android.settings/.Settings$SoundSettingsActivity;end", cat:"sound"},
+                {id:37, title:"声音设置 (系统标准动作)", desc:"使用SOUND_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.SOUND_SETTINGS;end", cat:"sound"},
+                {id:38, title:"存储设置 (StorageSettingsActivity)", desc:"存储管理主页面", path:"intent:#Intent;component=com.android.settings/.Settings$StorageSettingsActivity;end", cat:"storage"},
+                {id:39, title:"存储设置 (系统标准动作)", desc:"使用INTERNAL_STORAGE_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.INTERNAL_STORAGE_SETTINGS;end", cat:"storage"},
+                {id:40, title:"定位设置 (LocationSettingsActivity)", desc:"位置信息设置主页面", path:"intent:#Intent;component=com.android.settings/.Settings$LocationSettingsActivity;end", cat:"location"},
+                {id:41, title:"定位设置 (系统标准动作)", desc:"使用LOCATION_SOURCE_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end", cat:"location"},
+                {id:42, title:"通知设置 (NotificationSettingsActivity)", desc:"应用通知管理", path:"intent:#Intent;component=com.android.settings/.Settings$NotificationSettingsActivity;end", cat:"notification"},
+                {id:43, title:"通知设置 (系统标准动作)", desc:"使用NOTIFICATION_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.NOTIFICATION_SETTINGS;end", cat:"notification"},
+                {id:44, title:"个人热点 (TetherSettings)", desc:"移动网络共享/热点设置", path:"intent:#Intent;component=com.android.settings/.TetherSettings;end", cat:"hotspot"},
+                {id:45, title:"个人热点 (系统标准动作)", desc:"使用TETHER_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.TETHER_SETTINGS;end", cat:"hotspot"},
+                {id:46, title:"账户设置 (AccountSettingsActivity)", desc:"账户与同步设置", path:"intent:#Intent;component=com.android.settings/.Settings$AccountSettingsActivity;end", cat:"account"},
+                {id:47, title:"账户设置 (系统标准动作)", desc:"使用ADD_ACCOUNT_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.ADD_ACCOUNT_SETTINGS;end", cat:"account"},
+                {id:48, title:"语言设置 (LanguageSettingsActivity)", desc:"系统语言设置", path:"intent:#Intent;component=com.android.settings/.Settings$LanguageSettingsActivity;end", cat:"language"},
+                {id:49, title:"语言设置 (系统标准动作)", desc:"使用LOCALE_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.LOCALE_SETTINGS;end", cat:"language"},
+                {id:50, title:"日期时间设置 (DateTimeSettingsActivity)", desc:"日期和时间设置", path:"intent:#Intent;component=com.android.settings/.Settings$DateTimeSettingsActivity;end", cat:"system"},
+                {id:51, title:"移动网络设置 (NetworkDashboardActivity)", desc:"移动网络与SIM卡管理主页面", path:"intent:#Intent;component=com.android.settings/.Settings$NetworkDashboardActivity;end", cat:"apn"},
+                {id:52, title:"双卡管理 (MultiSimSettingsActivity)", desc:"双卡与SIM卡信息管理", path:"intent:#Intent;component=com.android.settings/.Settings$MultiSimSettingsActivity;end", cat:"apn"},
+                {id:53, title:"流量使用情况 (DataUsageSummaryActivity)", desc:"流量统计与管理页面", path:"intent:#Intent;component=com.android.settings/.Settings$DataUsageSummaryActivity;end", cat:"apn"},
+                {id:54, title:"数据漫游设置 (系统标准动作)", desc:"使用DATA_ROAMING_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.DATA_ROAMING_SETTINGS;end", cat:"apn"},
+                {id:55, title:"运营商网络设置 (系统标准动作)", desc:"使用NETWORK_OPERATOR_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.NETWORK_OPERATOR_SETTINGS;end", cat:"apn"},
+                {id:56, title:"WiFi高级设置 (WifiAdvancedSettingsActivity)", desc:"WiFi高级选项与IP设置", path:"intent:#Intent;component=com.android.settings/.wifi.WifiAdvancedSettings;end", cat:"wifi"},
+                {id:57, title:"已保存WiFi网络 (SavedWifiSettingsActivity)", desc:"已保存WiFi密码管理", path:"intent:#Intent;component=com.android.settings/.wifi.SavedWifiSettings;end", cat:"wifi"},
+                {id:58, title:"WiFi直连设置 (WifiP2pSettingsActivity)", desc:"WiFi直连与设备配对", path:"intent:#Intent;component=com.android.settings/.wifi.WifiP2pSettings;end", cat:"wifi"},
+                {id:59, title:"蓝牙配对设备列表 (BluetoothPairingActivity)", desc:"已配对与可用蓝牙设备管理", path:"intent:#Intent;component=com.android.settings/.bluetooth.BluetoothPairingActivity;end", cat:"bluetooth"},
+                {id:60, title:"蓝牙高级设置 (BluetoothAdvancedSettingsActivity)", desc:"蓝牙音频、编码与高级选项", path:"intent:#Intent;component=com.android.settings/.bluetooth.BluetoothAdvancedSettings;end", cat:"bluetooth"},
+                {id:61, title:"热点高级设置 (WifiHotspotSettingsActivity)", desc:"热点名称、密码与频段设置", path:"intent:#Intent;component=com.android.settings/.Settings$WifiHotspotSettingsActivity;end", cat:"hotspot"},
+                {id:62, title:"USB共享网络 (UsbTetherSettingsActivity)", desc:"USB网络共享开关与设置", path:"intent:#Intent;component=com.android.settings/.Settings$UsbTetherSettingsActivity;end", cat:"hotspot"},
+                {id:63, title:"蓝牙网络共享 (BluetoothTetherSettingsActivity)", desc:"蓝牙网络共享设置", path:"intent:#Intent;component=com.android.settings/.Settings$BluetoothTetherSettingsActivity;end", cat:"hotspot"},
+                {id:64, title:"NFC设置 (系统标准动作)", desc:"使用NFC_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.NFC_SETTINGS;end", cat:"system"},
+                {id:65, title:"连接与共享 (ConnectedDeviceDashboardActivity)", desc:"连接与共享设置主页面", path:"intent:#Intent;component=com.android.settings/.Settings$ConnectedDeviceDashboardActivity;end", cat:"system"},
+                {id:66, title:"投屏设置 (系统标准动作)", desc:"使用CAST_SETTINGS系统动作", path:"intent:#Intent;action=android.settings.CAST_SETTINGS;end", cat:"display"},
+                {id:67, title:"屏幕刷新率设置 (RefreshRateSettingsActivity)", desc:"屏幕刷新率与帧率调节", path:"intent:#Intent;component=com.android.settings/.display.RefreshRateSettings;end", cat:"display"},
+                {id:68, title:"护眼模式设置 (NightDisplaySettingsActivity)", desc:"夜间模式/护眼模式设置", path:"intent:#Intent;component=com.android.settings/.Settings$NightDisplaySettingsActivity;end", cat:"display"},
+                {id:69, title:"息屏显示设置 (AmbientDisplaySettingsActivity)", desc:"息屏显示/Always On设置", path:"intent:#Intent;component=com.android.settings/.Settings$AmbientDisplaySettingsActivity;end", cat:"display"},
+                {id:70, title:"字体与显示大小 (FontSizeActivity)", desc:"系统字体大小与显示尺寸调节", path:"intent:#Intent;component=com.android.settings/.Settings$FontSizeActivity;end", cat:"display"},
+                {id:71, title:"自动旋转设置 (RotationSettingsActivity)", desc:"屏幕自动旋转与方向锁定", path:"intent:#Intent;component=com.android.settings/.display.RotationSettings;end", cat:"display"},
+                {id:72, title:"勿扰模式设置 (ZenModeSettingsActivity)", desc:"免打扰模式设置", path:"intent:#Intent;component=com.android.settings/.Settings$ZenModeSettingsActivity;end", cat:"sound"},
+                {id:73, title:"铃声设置 (RingtoneSettingsActivity)", desc:"来电铃声与通知铃声设置", path:"intent:#Intent;component=com.android.settings/.Settings$RingtoneSettingsActivity;end", cat:"sound"},
+                {id:74, title:"震动强度设置 (VibrationSettingsActivity)", desc:"系统震动强度与模式调节", path:"intent:#Intent;component=com.android.settings/.sound.VibrationSettings;end", cat:"sound"},
+                {id:75, title:"闹钟铃声设置 (AlarmRingtoneSettingsActivity)", desc:"闹钟铃声与震动设置", path:"intent:#Intent;component=com.android.settings/.Settings$AlarmRingtoneSettingsActivity;end", cat:"sound"},
+                {id:76, title:"默认应用设置 (DefaultAppSettingsActivity)", desc:"系统默认应用管理", path:"intent:#Intent;component=com.android.settings/.Settings$DefaultAppSettingsActivity;end", cat:"app"},
+                {id:77, title:"应用特殊访问权限 (SpecialAccessSettingsActivity)", desc:"应用特殊权限与高级权限管理", path:"intent:#Intent;component=com.android.settings/.Settings$SpecialAccessSettingsActivity;end", cat:"app"},
+                {id:78, title:"安装来源管理 (ManageUnknownAppSourcesActivity)", desc:"未知应用安装权限管理", path:"intent:#Intent;component=com.android.settings/.Settings$ManageUnknownAppSourcesActivity;end", cat:"app"},
+                {id:79, title:"自启动管理 (AutoStartManageActivity)", desc:"应用自启动权限管理", path:"intent:#Intent;component=com.android.settings/.app.autostart.AutoStartManageActivity;end", cat:"app"},
+                {id:80, title:"后台应用管理 (BackgroundAppsActivity)", desc:"后台应用活动与限制管理", path:"intent:#Intent;component=com.android.settings/.app.BackgroundApps;end", cat:"app"},
+                {id:81, title:"电池优化设置 (BatteryOptimizationSettingsActivity)", desc:"应用电池优化白名单管理", path:"intent:#Intent;component=com.android.settings/.Settings$BatteryOptimizationSettingsActivity;end", cat:"battery"},
+                {id:82, title:"耗电详情统计 (PowerUsageSummaryActivity)", desc:"应用与系统耗电详情", path:"intent:#Intent;component=com.android.settings/.Settings$PowerUsageSummaryActivity;end", cat:"battery"},
+                {id:83, title:"极限省电模式 (UltraPowerSaverActivity)", desc:"极限省电/超级省电模式设置", path:"intent:#Intent;component=com.android.settings/.Settings$UltraPowerSaverActivity;end", cat:"battery"},
+                {id:84, title:"电池健康状态 (BatteryHealthActivity)", desc:"电池健康度与循环次数查看", path:"intent:#Intent;component=com.android.settings/.battery.BatteryHealth;end", cat:"battery"},
+                {id:85, title:"存储清理页面 (StorageManagerActivity)", desc:"系统存储清理与文件管理", path:"intent:#Intent;component=com.android.settings/.Settings$StorageManagerActivity;end", cat:"storage"},
+                {id:86, title:"SD卡设置 (MemoryCardSettingsActivity)", desc:"SD卡与外置存储管理", path:"intent:#Intent;component=com.android.settings/.Settings$MemoryCardSettingsActivity;end", cat:"storage"},
+                {id:87, title:"位置高级设置 (LocationAdvancedSettingsActivity)", desc:"定位精度、历史与高级选项", path:"intent:#Intent;component=com.android.settings/.location.LocationAdvancedSettings;end", cat:"location"},
+                {id:88, title:"位置权限管理 (LocationPermissionActivity)", desc:"应用位置权限管理", path:"intent:#Intent;component=com.android.settings/.location.LocationPermission;end", cat:"location"},
+                {id:89, title:"紧急呼叫设置 (EmergencyInfoSettingsActivity)", desc:"紧急联系人与急救信息设置", path:"intent:#Intent;component=com.android.settings/.Settings$EmergencyInfoSettingsActivity;end", cat:"security"},
+                {id:90, title:"屏幕锁定设置 (LockScreenSettingsActivity)", desc:"锁屏密码与解锁方式设置", path:"intent:#Intent;component=com.android.settings/.Settings$LockScreenSettingsActivity;end", cat:"security"},
+                {id:91, title:"智能解锁设置 (SmartLockSettingsActivity)", desc:"智能解锁与信任设备设置", path:"intent:#Intent;component=com.android.settings/.Settings$SmartLockSettingsActivity;end", cat:"security"},
+                {id:92, title:"隐私设置 (PrivacyDashboardActivity)", desc:"系统隐私与权限使用记录", path:"intent:#Intent;component=com.android.settings/.Settings$PrivacyDashboardActivity;end", cat:"security"},
+                {id:93, title:"权限管理页面 (PermissionControllerActivity)", desc:"系统权限总览与管理", path:"intent:#Intent;component=com.android.permissioncontroller/com.android.permissioncontroller.permission.ui.PermissionControllerActivity;end", cat:"security"},
+                {id:94, title:"通知使用权管理 (NotificationAccessSettingsActivity)", desc:"通知读取权限管理", path:"intent:#Intent;component=com.android.settings/.Settings$NotificationAccessSettingsActivity;end", cat:"notification"},
+                {id:95, title:"状态栏通知设置 (StatusBarNotificationSettingsActivity)", desc:"状态栏图标与通知显示设置", path:"intent:#Intent;component=com.android.settings/.Settings$StatusBarNotificationSettingsActivity;end", cat:"notification"},
+                {id:96, title:"输入法与键盘设置 (InputMethodAndLanguageSettingsActivity)", desc:"默认输入法与键盘设置", path:"intent:#Intent;component=com.android.settings/.Settings$InputMethodAndLanguageSettingsActivity;end", cat:"language"},
+                {id:97, title:"语音输入设置 (VoiceInputSettingsActivity)", desc:"语音识别与语音输入设置", path:"intent:#Intent;component=com.android.settings/.Settings$VoiceInputSettingsActivity;end", cat:"language"},
+                {id:98, title:"系统更新页面 (SystemUpdateActivity)", desc:"系统版本更新与升级", path:"intent:#Intent;component=com.android.settings/.Settings$SystemUpdateActivity;end", cat:"system"},
+                {id:99, title:"备份与恢复 (BackupSettingsActivity)", desc:"系统备份与恢复设置", path:"intent:#Intent;component=com.android.settings/.Settings$BackupSettingsActivity;end", cat:"system"},
+                {id:100, title:"系统重置选项 (ResetDashboardActivity)", desc:"恢复出厂设置与重置选项", path:"intent:#Intent;component=com.android.settings/.Settings$ResetDashboardActivity;end", cat:"system"}
+            ];
+            const intents = intentsRaw.map(i => ({...i, type:"可跳转", status:"available"}));
+            const catNames = { developer:'开发者', about:'关于', accessibility:'无障碍', security:'安全', vpn:'VPN', apn:'APN', bluetooth:'蓝牙', wifi:'WiFi', battery:'电池', app:'应用', display:'显示', sound:'声音', storage:'存储', location:'定位', notification:'通知', hotspot:'热点', account:'账户', language:'语言', system:'系统', search:'搜索', custom:'自定义' };
+            let state = { attempts: 0, successes: 0, filter: 'all', customIntents: [], searchKeyword: '' };
+            let currentIP = "加载中...";
+            let pendingLaunch = null;
+
+            async function fetchIP() {
+                try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); currentIP = d.ip; } catch(e) { currentIP = "未知IP"; }
+                generateWatermark();
+            }
+            function generateWatermark() {
+                const container = document.getElementById('watermarkLayer');
+                if(!container) return;
+                container.innerHTML = '';
+                const line1 = "本工具由 sym / yyb / Floruit 提供";
+                const line2 = "其余B站账号、QQ群均为盗版";
+                const line3 = "请支持原作者";
+                const ipLine = `IP: ${currentIP}`;
+                const stepX = 320, stepY = 280;
+                const cols = Math.ceil(window.innerWidth / stepX) + 2;
+                const rows = Math.ceil(window.innerHeight / stepY) + 2;
+                for(let i=0;i<cols;i++){
+                    for(let j=0;j<rows;j++){
+                        const div = document.createElement('div');
+                        div.className = 'watermark-item';
+                        div.style.left = (i * stepX - 50) + 'px';
+                        div.style.top = (j * stepY - 40) + 'px';
+                        div.style.width = '280px';
+                        div.innerHTML = `${line1}<br>${line2}<br>${line3}<br><span style="color:#d9534f;">${ipLine}</span>`;
+                        container.appendChild(div);
+                    }
+                }
+            }
+            let antiTriggered = false;
+            function showAntiScreen() {
+                if(antiTriggered) return;
+                antiTriggered = true;
+                const container = document.querySelector('.glass-panel');
+                if(container) container.style.display = 'none';
+                const watermark = document.getElementById('watermarkLayer');
+                if(watermark) watermark.style.display = 'none';
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000000ee;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ff5555;font-family:monospace;text-align:center;backdrop-filter:blur(12px);font-size:1.8rem;font-weight:bold;padding:20px;';
+                overlay.innerHTML = `<p>⚠️ 行为异常 ⚠️</p><p>您的行为异常</p><div style="font-size:2.5rem;background:rgba(255,0,0,0.2);padding:20px 40px;border-radius:20px;margin:20px;border:2px solid red;">${currentIP}</div><p>本网站受开源协议保护，侵权必究</p><p>开发者: sym, yyb, Floruit<br>其他渠道均为盗版</p><p style="font-size:0.8rem;margin-top:30px;">请关闭开发者工具后刷新页面，不要长按，不要右键，避免被系统误判</p>`;
+                document.body.innerHTML = '';
+                document.body.appendChild(overlay);
+                document.body.style.overflow = 'hidden';
+            }
+            function detectDevTools() {
+                document.addEventListener('contextmenu', e => { e.preventDefault(); showAntiScreen(); });
+                window.addEventListener('keydown', e => {
+                    if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) || (e.ctrlKey && e.key === 'U')) {
+                        e.preventDefault(); showAntiScreen();
+                    }
+                });
+                setInterval(() => {
+                    if(antiTriggered) return;
+                    if((window.outerWidth - window.innerWidth) > 300 || (window.outerHeight - window.innerHeight) > 300) showAntiScreen();
+                }, 2000);
+            }
+            function showToast(msg, type='info'){
+                const t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2000);
+            }
+            function updateStats(){
+                const total = intents.length + state.customIntents.length;
+                document.getElementById('total-count').innerText = total;
+                document.getElementById('custom-count').innerText = state.customIntents.length;
+                document.getElementById('attempt-count').innerText = state.attempts;
+                document.getElementById('success-count').innerText = state.successes;
+                document.getElementById('total-attempts').innerText = state.attempts;
+            }
+            
+            // 愚人节模态框逻辑
+            const modal = document.getElementById('foolModal');
+            function showFoolModal(callback) {
+                pendingLaunch = callback;
+                modal.classList.add('show');
+            }
+            function hideModal() { modal.classList.remove('show'); pendingLaunch = null; }
+            document.getElementById('payBtn').onclick = () => {
+                hideModal();
+                showToast('🎉 你被骗了！愚人节快乐！🎉', 'info');
+                setTimeout(() => showToast('其实根本不需要付费 😜', 'info'), 4500);
+            };
+            document.getElementById('cancelBtn').onclick = () => {
+                hideModal();
+                showToast('取消支付，逃过一劫～', 'warning');
+            };
+            
+            // 改造跳转函数：50%概率触发愚人节骗局
+            window.tryLaunch = function(pathEnc, id){
+                state.attempts++;
+                updateStats();
+                const isFool = Math.random() < 0.5;
+                if(isFool){
+                    showFoolModal(() => {
+                        // 占位，实际不用执行跳转
+                    });
+                    showToast('需要付费才能跳转～', 'warning');
+                } else {
+                    showToast(`✨ 跳转中 ID:${id}`, 'info');
+                    try { window.location.href = decodeURIComponent(pathEnc); } catch(e){ showToast('跳转失败', 'error'); }
+                }
+            };
+            window.copyPath = function(pathEnc){
+                const real = decodeURIComponent(pathEnc);
+                navigator.clipboard.writeText(real).then(()=>showToast('已复制路径','success')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=real; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('已复制','success'); });
+            };
+            window.deleteIntent = function(id){
+                const idx = state.customIntents.findIndex((_,i)=>2000+i === id);
+                if(idx !== -1){
+                    state.customIntents.splice(idx,1);
+                    localStorage.setItem('customIntentsBeta', JSON.stringify(state.customIntents));
+                    renderCards();
+                    showToast('已删除自定义', 'success');
+                }
+            };
+            function renderCards(){
+                let customList = [];
+                try { customList = JSON.parse(localStorage.getItem('customIntentsBeta') || '[]'); } catch(e) {}
+                state.customIntents = customList;
+                const customWithId = customList.map((c,idx) => ({ ...c, id:2000+idx, cat:'custom', type:c.type||'自定义', status:'available', title:c.title||'自定义Intent', desc:c.desc||'自定义跳转', path:c.path }));
+                let all = [...intents, ...customWithId];
+                let filtered = state.filter === 'all' ? all : all.filter(i => i.cat === state.filter);
+                if(state.searchKeyword.trim()){
+                    const kw = state.searchKeyword.trim().toLowerCase();
+                    filtered = filtered.filter(i => i.title.toLowerCase().includes(kw) || i.desc.toLowerCase().includes(kw) || i.path.toLowerCase().includes(kw));
+                }
+                const container = document.getElementById('cards-container');
+                if(!container) return;
+                if(filtered.length === 0){
+                    container.innerHTML = '<div style="text-align:center; padding:48px;">🔍 没有找到卡片</div>';
+                    updateStats(); return;
+                }
+                let html = '';
+                for(const item of filtered){
+                    const catZh = catNames[item.cat] || '其他';
+                    const statusClass = item.status || 'available';
+                    const typeText = item.type || (item.cat==='custom'?'自定义':'系统Intent');
+                    const escapedPath = encodeURIComponent(item.path).replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+                    html += `<div class="neo-card"><div class="card-row"><span class="card-cat">${escapeHtml(catZh)}</span><span class="card-status ${statusClass}">${escapeHtml(typeText)}</span></div><div class="card-title">${escapeHtml(item.title)}</div><div class="card-desc">${escapeHtml(item.desc)}</div><div class="intent-block">${escapeHtml(item.path)}</div><div class="action-group"><button class="btn-minimal primary" onclick="tryLaunch('${escapedPath}',${item.id})">跳转</button><button class="btn-minimal" onclick="copyPath('${escapedPath}')">复制</button>${item.cat === 'custom' ? `<button class="btn-minimal delete" onclick="deleteIntent(${item.id})">删除</button>` : ''}</div></div>`;
+                }
+                container.innerHTML = html;
+                updateStats();
+            }
+            function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
+            function initFilters(){
+                const btns = ['all','developer','about','accessibility','security','vpn','apn','bluetooth','wifi','battery','app','display','sound','storage','location','notification','hotspot','account','language','system','custom'];
+                const container = document.getElementById('filterContainer');
+                container.innerHTML = btns.map(c => `<button class="filter-tag ${c==='all'?'active':''}" data-filter="${c}">${catNames[c]||c}</button>`).join('');
+                document.querySelectorAll('.filter-tag').forEach(btn => {
+                    if(btn.dataset.filter){
+                        btn.addEventListener('click', ()=>{
+                            document.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active'));
+                            btn.classList.add('active');
+                            state.filter = btn.dataset.filter;
+                            renderCards();
+                        });
+                    }
+                });
+            }
+            function initTheme(){
+                const saved = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+                if(saved === 'dark' || (!saved && prefersDark.matches)){
+                    document.documentElement.setAttribute('data-theme','dark');
+                    document.getElementById('theme-btn').textContent = '☀️';
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    document.getElementById('theme-btn').textContent = '🌙';
+                }
+                document.getElementById('theme-btn').onclick = () => {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    if(isDark){
+                        document.documentElement.removeAttribute('data-theme');
+                        localStorage.setItem('theme','light');
+                        document.getElementById('theme-btn').textContent = '🌙';
+                    } else {
+                        document.documentElement.setAttribute('data-theme','dark');
+                        localStorage.setItem('theme','dark');
+                        document.getElementById('theme-btn').textContent = '☀️';
+                    }
+                    showToast('主题已切换','info');
+                };
+            }
+            function setupCustom(){
+                const pkgInput = document.getElementById('customPkg');
+                const clsInput = document.getElementById('customCls');
+                const previewSpan = document.getElementById('previewIntent');
+                function updatePreview(){
+                    const pkg = pkgInput.value.trim() || 'com.android.settings';
+                    const cls = clsInput.value.trim();
+                    previewSpan.innerText = pkg + (cls.startsWith('.') ? cls : (cls ? '.'+cls : ''));
+                }
+                pkgInput.addEventListener('input', updatePreview);
+                clsInput.addEventListener('input', updatePreview);
+                document.getElementById('addCustomBtn').addEventListener('click', () => {
+                    let pkg = pkgInput.value.trim();
+                    let cls = clsInput.value.trim();
+                    let title = document.getElementById('customDesc').value.trim() || '自定义Intent';
+                    if(!pkg || !cls){ showToast('包名和类名不能为空','error'); return; }
+                    if(!cls.startsWith('.')) cls = '.' + cls;
+                    const path = `intent:#Intent;component=${pkg}${cls};end`;
+                    let existing = [];
+                    try { existing = JSON.parse(localStorage.getItem('customIntentsBeta') || '[]'); } catch(e){}
+                    existing.push({ title: title.length>40 ? title.substring(0,37)+'…' : title, desc: `自定义: ${pkg}${cls}`, path: path, type: '自定义' });
+                    localStorage.setItem('customIntentsBeta', JSON.stringify(existing));
+                    renderCards();
+                    showToast('自定义Intent已添加', 'success');
+                    updatePreview();
+                });
+                updatePreview();
+            }
+            function setupSearch(){
+                const input = document.getElementById('searchInput');
+                const clearBtn = document.getElementById('clearSearchBtn');
+                function handle(){
+                    state.searchKeyword = input.value;
+                    clearBtn.style.display = state.searchKeyword ? 'block' : 'none';
+                    renderCards();
+                }
+                input.addEventListener('input', handle);
+                clearBtn.addEventListener('click', ()=>{ input.value = ''; handle(); });
+            }
+            window.addEventListener('resize', () => { if(currentIP !== "加载中...") generateWatermark(); });
+            fetchIP().then(()=>{ generateWatermark(); });
+            initFilters();
+            initTheme();
+            setupCustom();
+            setupSearch();
+            renderCards();
+            detectDevTools();
+            showToast('未就绪', 'info');
+        })();
+    </script>
+</body>
+
+</html>
